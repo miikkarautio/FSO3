@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/miikkarautio/FSO3/issues"
   },
-  "homepage": "https://github.com/miikkarautio/FSO3#readme"
+  "homepage": "https://github.com/miikkarautio/FSO3#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
 }

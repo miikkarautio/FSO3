@@ -1,14 +1,5 @@
-const http = require('http')
-
-const app = http.createServer((request, response) => {
-    response.writeHead(200, {'Content-Type': 'application/json'})
-    response.end(JSON.stringify(persons))
-})
-
-const PORT = 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
-
+const express = require('express')
+const app = express()
 
 let persons = [
     {
@@ -32,3 +23,21 @@ let persons = [
         number: "39-23-6423122"
     }   
 ]
+
+
+app.get('/', (request, response) => {
+    response.send('<h1>Hello World</h1>')
+})
+
+app.get('/info', (request, response) => {
+    const count = persons.length; //Take count of how many people are in persons list
+    let currentDate = new Date() //Get date 
+    response.send(`
+    <p>Phonebook has info for ${count.toString()} people</p> 
+    <p>${currentDate} </p>`) 
+})
+
+const PORT = 3001
+app.listen(PORT)
+console.log(`Server running on port ${PORT}`)
+

@@ -58,14 +58,30 @@ app.delete('/info/:id', (request, response) =>{
 const generateId = () => {
     const maxIdMath = Math.random() * 100000
     return String(Math.floor(maxIdMath))
+
 }
 
+
+
 app.post('/info/persons', (request, response) => {
+
     const body = request.body
+
+    const existingPerson = persons.find(person => person.name === body.name);
 
     if(!body.name){
         return response.status(400).json({
-            error: 'content missing'
+            error: 'number missing'
+        })
+    } else if(existingPerson){
+        return response.status(400).json({
+            error: "name must be unique"
+        })
+    }
+
+    if(!body.number){
+        return response.status(400).json({
+            error: 'number missing'
         })
     }
 

@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 app.use(express.json())
+var morgan = require('morgan')
 
 let persons = [
     {
@@ -25,6 +26,37 @@ let persons = [
     }   
 ]
 
+/* const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:', request.path)
+    console.log('Body:', request.path)
+    console.log('---')
+    next()
+}
+
+app.use(requestLogger) */
+
+morgan.token('username', function(req, res){
+    const person = persons.find(person => person.id === req.params.id)
+    return person ? person.name : 'no-name';
+})
+
+morgan.token('number', function(req, res){
+    const person = persons.find(person => person.id === req.params.id)
+    return person ? person.number : 'no-number';
+})
+
+
+app.use(
+    morgan('tiny'),
+    morgan(function (tokens, req, res){
+        return JSON.stringify({
+            username: tokens.username(req, res),
+            number: tokens.number(req, res)
+        })
+    })
+)
+
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
@@ -48,6 +80,9 @@ app.get('/info/:id', (request, response) => {
     }
 })
 
+//disables favicon.ico from showing in the console
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.delete('/info/:id', (request, response) =>{
     const id = request.params.id
     persons = persons.filter(person => person.id !== id)
@@ -60,8 +95,6 @@ const generateId = () => {
     return String(Math.floor(maxIdMath))
 
 }
-
-
 
 app.post('/info/persons', (request, response) => {
 
@@ -95,6 +128,12 @@ app.post('/info/persons', (request, response) => {
 
     response.json(person)
 })
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error: 'unknown endpoint'})
+}
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT)

@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 var morgan = require('morgan')
+const cors = require('cors')
+app.use(cors())
 
 let persons = [
     {
@@ -26,48 +28,40 @@ let persons = [
     }   
 ]
 
-/* const requestLogger = (request, response, next) => {
-    console.log('Method:', request.method)
-    console.log('Path:', request.path)
-    console.log('Body:', request.path)
-    console.log('---')
-    next()
-}
 
-app.use(requestLogger) */
-
-morgan.token('username', function(req, res){
-    const person = persons.find(person => person.id === req.params.id)
-    return person ? person.name : 'no-name';
+morgan.token('user', function(req, res){
+    return req.body.name || 'no-name';
 })
 
-morgan.token('number', function(req, res){
-    const person = persons.find(person => person.id === req.params.id)
-    return person ? person.number : 'no-number';
+morgan.token('num', function(req, res){
+    return req.body.number || 'no-num';
 })
-
 
 app.use(
     morgan('tiny'),
     morgan(function (tokens, req, res){
         return JSON.stringify({
-            username: tokens.username(req, res),
-            number: tokens.number(req, res)
+            user: tokens.user(req, res),
+            num: tokens.num(req, res)
         })
     })
 )
-
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World</h1>')
 })
 
-app.get('/info', (request, response) => {
+//Leaving it here if it needs to be used
+/* app.get('/info', (request, response) => {
     const count = persons.length; //Take count of how many people are in persons list
     let currentDate = new Date() //Get date 
     response.send(`
     <p>Phonebook has info for ${count.toString()} people</p> 
     <p>${currentDate} </p>`) 
+}) */
+
+app.get('/info', (request, response) => {
+    response.json(persons)
 })
 
 app.get('/info/:id', (request, response) => {
@@ -93,10 +87,9 @@ app.delete('/info/:id', (request, response) =>{
 const generateId = () => {
     const maxIdMath = Math.random() * 100000
     return String(Math.floor(maxIdMath))
-
 }
 
-app.post('/info/persons', (request, response) => {
+app.post('/info', (request, response) => {
 
     const body = request.body
 

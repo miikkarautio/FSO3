@@ -2,8 +2,7 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 var morgan = require('morgan')
-const cors = require('cors')
-app.use(cors())
+app.use(express.static('dist'))
 
 let persons = [
     {
@@ -47,9 +46,6 @@ app.use(
     })
 )
 
-app.get('/', (request, response) => {
-    response.send('<h1>Hello World</h1>')
-})
 
 //Leaving it here if it needs to be used
 /* app.get('/info', (request, response) => {
@@ -128,7 +124,9 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
+
 

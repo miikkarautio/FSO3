@@ -1,32 +1,12 @@
-
+require('dotenv').config()
 const express = require('express')
 const app = express()
+const Person = require('./models/person')
+
 app.use(express.json())
-var morgan = require('morgan')
 app.use(express.static('dist'))
 
-let persons = [
-    {
-        id: "1",
-        name: "Arto Hellas",
-        number: "040-123456"
-    },
-    {
-        id: "2",
-        name: "Ada Lovelace",
-        number: "39-44-5423523"
-    },
-    {
-        id: "3",
-        name: "Dan Abramov",
-        number: "12-43-234345"
-    },  
-    {
-        id: "4",
-        name: "Mary Poppendieck",
-        number: "39-23-6423122"
-    }   
-]
+var morgan = require('morgan')
 
 
 morgan.token('user', function(req, res){
@@ -57,8 +37,12 @@ app.use(
     <p>${currentDate} </p>`) 
 }) */
 
+
 app.get('/info', (request, response) => {
+  Person.find({}).then(persons => {
+    console.log(persons)
     response.json(persons)
+  })
 })
 
 app.get('/info/:id', (request, response) => {
@@ -125,7 +109,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

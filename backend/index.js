@@ -61,46 +61,43 @@ app.get('/favicon.ico', (req, res) => res.status(204).end());
 app.delete('/info/:id', (request, response) =>{
     const id = request.params.id
     persons = persons.filter(person => person.id !== id)
+    
 
     response.status(204).end()
 })
 
-const generateId = () => {
-    const maxIdMath = Math.random() * 100000
-    return String(Math.floor(maxIdMath))
-}
 
 app.post('/info', (request, response) => {
 
     const body = request.body
 
-    const existingPerson = persons.find(person => person.name === body.name);
-
     if(!body.name){
         return response.status(400).json({
-            error: 'number missing'
+            error: 'name missing'
         })
-    } else if(existingPerson){
+    } else if(!body.number){
         return response.status(400).json({
-            error: "name must be unique"
+            error: 'number is missing'
         })
-    }
-
-    if(!body.number){
-        return response.status(400).json({
-            error: 'number missing'
-        })
-    }
-
-    const person = {
-        name: body.name || false, 
-        number: body.number || false,
-        id: generateId(),
     }
     
-    persons = persons.concat(person)
+    Person.findOne({name: body.name}).then(existingPerson => {
+        if(existingPerson){
+            return response.status(400).json({
+                error: 'name must be unique'
+            })
+        }
 
-    response.json(person)
+        const person = new Person({
+            name: body.name || false,
+            number: body.number || false,
+        })
+
+        person.save().then(savedPerson => {
+            response.json(savedPerson)
+        })
+    })
+
 })
 
 const unknownEndpoint = (request, response) => {

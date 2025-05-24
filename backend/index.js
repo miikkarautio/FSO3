@@ -58,12 +58,11 @@ app.get('/info/:id', (request, response) => {
 //disables favicon.ico from showing in the console
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-app.delete('/info/:id', (request, response) =>{
-    const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
-    
-
-    response.status(204).end()
+app.delete('/info/:id', (request, response) => {
+    Person.findByIdAndDelete(request.params.id).then(result => {
+        response.status(204).end()
+    })
+    .catch(error => console.log(error)) //lisää viel error handler -> "next"
 })
 
 

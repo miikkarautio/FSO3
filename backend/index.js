@@ -7,6 +7,7 @@ app.use(express.json())
 app.use(express.static('dist'))
 
 var morgan = require('morgan')
+const person = require('./models/person')
 
 morgan.token('user', function(req, res){
     return req.body.name || 'no-name';
@@ -95,6 +96,28 @@ app.post('/info', (request, response, next) => {
         })
     })
     .catch(error => next(error))
+
+})
+
+app.put('/info/:id', (request, response, next) => {
+
+    const { name, number } = request.body
+
+    Person.findById(request.params.id)
+        .then(changedNumber => {
+            if(!changedNumber){
+                return response.status(404).end()
+            }
+
+            changedNumber.name = name
+            changedNumber.number = number
+
+            return changedNumber.save().then((updatedNumber) => {
+                response.json(updatedNumber)
+            })
+
+        })
+        .catch(error => next(error))
 
 })
 

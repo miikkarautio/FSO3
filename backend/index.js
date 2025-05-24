@@ -29,7 +29,6 @@ app.use(
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
-
     if(error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id '})
     }
@@ -39,17 +38,16 @@ const errorHandler = (error, request, response, next) => {
 
 app.get('/info', (request, response, next) => {
   Person.find({}).then(persons => {
-    console.log(persons)
     response.json(persons)
   })
   .catch(error => next(error))
 })
 
+
 app.get('/info/:id', (request, response, next) => {
     Person.findById(request.params.id)
     .then(result => {
         response.json(result)
-        console.log(result)
     })
     .catch(error => next(error))
 })

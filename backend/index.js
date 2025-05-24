@@ -8,7 +8,6 @@ app.use(express.static('dist'))
 
 var morgan = require('morgan')
 
-
 morgan.token('user', function(req, res){
     return req.body.name || 'no-name';
 })
@@ -27,46 +26,45 @@ app.use(
     })
 )
 
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
 
-//Leaving it here if it needs to be used
-/* app.get('/info', (request, response) => {
-    const count = persons.length; //Take count of how many people are in persons list
-    let currentDate = new Date() //Get date 
-    response.send(`
-    <p>Phonebook has info for ${count.toString()} people</p> 
-    <p>${currentDate} </p>`) 
-}) */
+    if(error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id '})
+    }
 
+    next(error)
+}
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   Person.find({}).then(persons => {
     console.log(persons)
     response.json(persons)
   })
+  .catch(error => next(error))
 })
 
-app.get('/info/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if(person){
-        response.json(person)
-    } else{
-        response.status(404).end()
-    }
+app.get('/info/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+    .then(result => {
+        response.json(result)
+        console.log(result)
+    })
+    .catch(error => next(error))
 })
 
 //disables favicon.ico from showing in the console
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-app.delete('/info/:id', (request, response) => {
+app.delete('/info/:id', (request, response, next) => {
     Person.findByIdAndDelete(request.params.id).then(result => {
         response.status(204).end()
     })
-    .catch(error => console.log(error)) //lisää viel error handler -> "next"
+    .catch(error => next(error))
 })
 
 
-app.post('/info', (request, response) => {
+app.post('/info', (request, response, next) => {
 
     const body = request.body
 
@@ -96,13 +94,16 @@ app.post('/info', (request, response) => {
             response.json(savedPerson)
         })
     })
+    .catch(error => next(error))
 
 })
+
 
 const unknownEndpoint = (request, response) => {
     response.status(404).send({error: 'unknown endpoint'})
 }
 
+app.use(errorHandler)
 app.use(unknownEndpoint)
 
 const PORT = process.env.PORT

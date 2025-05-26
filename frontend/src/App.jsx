@@ -107,6 +107,14 @@ const App = () => {
           setMessage(null)
         }, 5000)
       })
+      .catch(error => {
+          setMessageStyle({color: 'red'})
+          setMessage(error.response.data.error)
+          setTimeout(() => {
+            setMessage(null)
+            setMessageStyle(null)
+          }, 5000)
+        })
 
     setNewName('')
     setNewNumber('')

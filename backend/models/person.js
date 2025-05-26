@@ -19,7 +19,17 @@ const personSchema = new mongoose.Schema({
       minlength: 3,
       required: true
     },
-    number: Number, 
+    number: {
+      type: String,
+      validate: {
+        validator: function(number){
+          return /^(\d{2}-\d{6}|\d{3}-\d{5})$/.test(number);
+        },
+        message: props => `${props.value} Use a phone number that contains either 2-6 or 3-5 format example: 123-45678`
+      },
+      minlength: 8,
+      required: true
+    }
     
 })
 
